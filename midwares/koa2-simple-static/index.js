@@ -62,22 +62,13 @@ function staticServe (root = "", options = {}) {
         }
 
         if (stat.isFile()) {
-            /**
-             * 验证文件类型
-             */
-            
             ctx.set('Content-Type', mime[ext]);
             let rs = fs.createReadStream(realPath)
-            // rs.pipe(ctx.res)
             return ctx.body = rs;
-            // await next()
         } else {
             await next()
         }
-        
-
-        // ctx.body = ""
-        // await next()
+    
     }
 
  }
