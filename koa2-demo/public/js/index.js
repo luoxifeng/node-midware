@@ -1,0 +1,1 @@
+document.body.innerHTML = "static files serve"
