@@ -11,7 +11,9 @@ const PORT = "8011";
 const app = new Koa();
 
 app.use(logger())
-app.use(staticServe(path.resolve(__dirname + "/public"), {}))
+app.use(staticServe(path.resolve(__dirname + "/public"), {
+    cache: true,//默认启动缓存
+}))
 app.use(views(__dirname + '/views', {extension: "ejs"}));
 
 app.use(async(ctx, next) => {

@@ -8,6 +8,7 @@ const join = path.join;
 const fs = require("async-file");
 const url = require("url");
 const mime = require('./mime.js');
+const expires = require("./expires");
 module.exports = staticServe;
 
 const accepts = Object.keys(mime);
@@ -40,16 +41,21 @@ function staticServe (root = "", options = {}) {
             return await next();
         }
         let realPath = join(root, pathname)
-        let arr = pathname.split(".");
-        let ext = arr[arr.length -1];//文件类型
+        //文件类型
+        let ext = path.extname(realPath);
+        ext = ext ? ext.slice("1") : "";
+        
         //验证文件类型
         try {
             if (!accepts.includes(ext)) 
                 throw new Error(`the file type '${ext}' are not supported `)
         } catch (error) {
             console.error(error.message)
+            return await next();
         }
         
+        
+
         /**
          * 容错没找到，会报错，捕获错误跳转下一个中间件
          * 因为这里可能会是请求数据的请求
@@ -61,13 +67,22 @@ function staticServe (root = "", options = {}) {
             return await next();
         }
 
-        if (stat.isFile()) {
-            ctx.set('Content-Type', mime[ext]);
-            let rs = fs.createReadStream(realPath)
-            return ctx.body = rs;
-        } else {
-            await next()
+        if (!stat.isFile()) {
+           await next()
         }
+
+         /** 
+          * 设置响应头缓存
+         */
+        ctx.set('Content-Type', mime[ext]);
+        if (opts.cache && expires.file.test(ext)) {
+            let date = new Date();
+            date.setTime(date.getTime() + expires.maxAge*1000);
+            ctx.set("Expires", date.toUTCString())
+            ctx.set("Cache-Control", "max-age=" + expires.maxAge)
+        }
+        let rs = fs.createReadStream(realPath)
+        return ctx.body = rs;
     
     }
 

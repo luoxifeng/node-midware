@@ -1,1 +1,1 @@
-document.body.innerHTML = "static files serve"
+console.log("static files sever!")
