@@ -57,4 +57,6 @@ app.listen(PORT, () => {
 ```
 
 # reference
-[Node.js静态文件服务器实战](http://www.infoq.com/cn/news/2011/11/tyq-nodejs-static-file-server)
+* **[Node.js静态文件服务器实战](http://www.infoq.com/cn/news/2011/11/tyq-nodejs-static-file-server)**
+
+* **[用nodejs做一个简易的静态资源服务器](http://www.jianshu.com/p/130110d58fec)**
