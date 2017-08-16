@@ -29,17 +29,35 @@ function staticServe (root = "", options = {}) {
         if (!opts.accepts) {
             opts.accepts = accepts;
         }
-        
-        root = resolve(root);
 
         let req = ctx.req;
         let pathname = url.parse(req.url).pathname;
-
-        //如果路径是"/"，直接跳过裕兴下一个中间件
+         //如果路径是"/"，直接跳到下一个中间件
         if (pathname === "/") return await next();
+
         if (req.method !== "GET" && req.method !== "HEAD") {
             return await next();
         }
+        
+        let vertualPath;
+        if(vertualPath = opts.vertualPath) {
+            if (!opts.vertualPath.startsWith("/")) {
+                vertualPath = "/" + vertualPath;
+            }
+
+            if (opts.vertualPath.endsWith("/")) {
+                vertualPath = vertualPath.substr(0, vertualPath.length - 1)
+            }
+
+            if (!pathname.startsWith(vertualPath)) {
+                return await next();
+            }
+            pathname = pathname.replace(vertualPath, "")
+        }
+        
+
+        root = resolve(root);
+       
         let realPath = join(root, pathname)
         //文件类型
         let ext = path.extname(realPath);

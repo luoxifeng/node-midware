@@ -12,6 +12,7 @@ const app = new Koa();
 
 app.use(logger())
 app.use(staticServe(path.resolve(__dirname + "/public"), {
+    vertualPath: "/files",
     expires: 5,
     maxAge: 5,
     compress: true
