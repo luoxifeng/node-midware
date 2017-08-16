@@ -14,6 +14,7 @@ app.use(logger())
 app.use(staticServe(path.resolve(__dirname + "/public"), {
     expires: 5,
     maxAge: 5,
+    compress: true
 }))
 app.use(views(__dirname + '/views', {extension: "ejs"}));
 

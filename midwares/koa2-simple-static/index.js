@@ -8,7 +8,7 @@ const join = path.join;
 const fs = require("async-file");
 const url = require("url");
 const mime = require('./mime.js');
-const expires = require("./expires");
+const zlib = require("zlib");
 module.exports = staticServe;
 
 const accepts = Object.keys(mime);
@@ -86,7 +86,7 @@ function staticServe (root = "", options = {}) {
 
         if (opts.expires) {
             let date = new Date();
-            date.setTime(date.getTime() + expires.maxAge*1000);
+            date.setTime(date.getTime() + parseInt(opts.expires));
             ctx.set("Expires", date.toUTCString())
         }
 
@@ -95,11 +95,34 @@ function staticServe (root = "", options = {}) {
         }
 
         ctx.set("Last-Modified", lastModified)
-
-
-        let rs = fs.createReadStream(realPath)
+        let rs = await compressFile(ctx, realPath, opts.compress)
         return ctx.body = rs;
     
     }
 
- }
+}
+
+/**
+ * 压缩 我们只对js  css  html 这样的文件进行压缩
+ * @param {*} ctx 
+ * @param {*} realPath 
+ */
+async function compressFile(ctx, realPath, compress){
+    let ext = path.extname(realPath);
+    ext = ext ? ext.slice("1") : "";
+    let rs = await fs.createReadStream(realPath)
+    if (!compress) return rs;
+    if (!/js|css|html/ig.test(ext)) return rs;
+
+    let acceptsEncoding = ctx.request.headers["accept-encoding"] || ""; 
+    if (/gzip/.test(acceptsEncoding)) {
+        ctx.set("Content-Encoding", "gzip")
+        return rs.pipe(zlib.createGzip())
+    } else if (/deflate/.test(acceptEncoding)) {
+        ctx.set("Content-Enoding", "deflate")
+        return rs.pope(zlib.createDeflate())
+    }
+    return rs;
+}
+
+
