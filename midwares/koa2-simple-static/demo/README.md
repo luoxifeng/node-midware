@@ -2,7 +2,7 @@
 demo
 
 # usage
-```node
+```
 git clone "xxxxx"
 cd xxxx/koa2-simple-static
 yarn & yarn start
