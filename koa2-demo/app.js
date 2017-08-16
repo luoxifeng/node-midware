@@ -12,7 +12,8 @@ const app = new Koa();
 
 app.use(logger())
 app.use(staticServe(path.resolve(__dirname + "/public"), {
-    cache: true,//默认启动缓存
+    expires: 5,
+    maxAge: 5,
 }))
 app.use(views(__dirname + '/views', {extension: "ejs"}));
 

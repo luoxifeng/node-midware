@@ -71,16 +71,32 @@ function staticServe (root = "", options = {}) {
            await next()
         }
 
+        //验证最后修改时间
+        let lastModified = stat.mtime.toUTCString();
+        
+        if (lastModified === ctx.request.headers['if-modified-since']) {
+            ctx.status = 304;
+            return ctx.body = "Not Modified";
+        }
+
          /** 
-          * 设置响应头缓存
+          * 设置响应头
          */
         ctx.set('Content-Type', mime[ext]);
-        if (opts.cache && expires.file.test(ext)) {
+
+        if (opts.expires) {
             let date = new Date();
             date.setTime(date.getTime() + expires.maxAge*1000);
             ctx.set("Expires", date.toUTCString())
-            ctx.set("Cache-Control", "max-age=" + expires.maxAge)
         }
+
+        if(opts.maxAge || opts.maxage) {
+            ctx.set("Cache-Control", `max-age=${opts.maxAge || opts.maxage}` )
+        }
+
+        ctx.set("Last-Modified", lastModified)
+
+
         let rs = fs.createReadStream(realPath)
         return ctx.body = rs;
     

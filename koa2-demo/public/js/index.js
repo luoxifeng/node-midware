@@ -1,1 +1,1 @@
-console.log("static files sever!")
+console.log("static files sever! ")
