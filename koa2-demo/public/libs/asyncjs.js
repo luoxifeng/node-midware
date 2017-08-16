@@ -1,4 +1,4 @@
-;(function(win){
+;(function(){
 
     function Promise2(){
         this.cbs = [];
@@ -27,10 +27,10 @@
             res.cbs[0]();
         }
         document.body.appendChild(script);
-        
+
         return res = new Promise2();
     }
 
-    $.AsyncJs = asyncLoad;
+    win.AsyncJs = asyncLoad;
 
 })(window)
