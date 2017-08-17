@@ -15,3 +15,20 @@ fetch("/testpost", {
     },
     body: "a=10&b=11&c=12"
 })
+
+fetch("/testpost", {
+    method: "post",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({s:11,j:22})
+})
+
+fetch("/testpost", {
+    method: "post",
+    headers: {
+        "Content-Type": "text/plain"
+    },
+    body: JSON.stringify({s:11,j:22})
+})
+
