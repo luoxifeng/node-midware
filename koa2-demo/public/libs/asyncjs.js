@@ -1,4 +1,4 @@
-;(function(){
+;(function(win){
 
     function Promise2(){
         this.cbs = [];

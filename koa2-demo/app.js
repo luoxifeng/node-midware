@@ -11,15 +11,41 @@ const PORT = "8011";
 const app = new Koa();
 
 app.use(logger())
+
+
+
+
+/**
+ * koa2-simple-static
+ */
 app.use(staticServe(path.resolve(__dirname + "/public"), {
     vertualPath: "/files",
     expires: 5,
     maxAge: 5,
     compress: true
 }))
+
+/**
+ * koa2-bodypaser
+ */
+app.use(require("../midwares/koa2-bodypaser")())
+
+app.use(async (ctx, next) => {
+    require("./test.js")(ctx)
+    await next()
+})
 app.use(views(__dirname + '/views', {extension: "ejs"}));
 
+app.use(async (ctx, next) => {
+    if(ctx.path == "/testpost"){
+        ctx.body = ctx.request.body || "not paser";
+    } else {
+        await next();
+    }
+})
+
 app.use(async(ctx, next) => {
+    
     if (ctx.path == "/" || ctx.path == "/index") {
         await ctx.render("index", {msg: "welcome"});
     }else {
