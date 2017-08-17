@@ -30,7 +30,7 @@ module.exports = function bodyPaser(opts){
                 try {
                     request.body = JSON.parse(str)
                 } catch (error) {
-                    request.body = error
+                    request.body = error.message;
                 }
             } else {
                 request.body = str;

@@ -21,7 +21,7 @@ fetch("/testpost", {
     headers: {
         "Content-Type": "application/json"
     },
-    body: JSON.stringify({s:11,j:22})
+    body: JSON.stringify("a=10&b=11&c=12")
 })
 
 fetch("/testpost", {
