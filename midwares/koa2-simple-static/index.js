@@ -96,13 +96,14 @@ function staticServe (root = "", options = {}) {
         const eTag = await getETag(realPath);
         if (match == eTag) {
             //验证最后修改时间
-            
-            if (lastModified === ctx.request.headers['if-modified-since']) {
-                ctx.status = 304;
-                return ctx.body = "Not Modified";
-            }
+            ctx.status = 304;
+            return ctx.body = "Not Modified";
         }
-        
+
+        if (lastModified === ctx.request.headers['if-modified-since']) {
+            ctx.status = 304;
+            return ctx.body = "Not Modified";
+        }
 
          /** 
           * 设置响应头
