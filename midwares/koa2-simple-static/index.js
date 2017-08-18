@@ -9,6 +9,7 @@ const fs = require("async-file");
 const url = require("url");
 const mime = require('./mime.js');
 const zlib = require("zlib");
+const crypto = require("crypto");
 module.exports = staticServe;
 
 const accepts = Object.keys(mime);
@@ -88,14 +89,20 @@ function staticServe (root = "", options = {}) {
         if (!stat.isFile()) {
            await next()
         }
-
-        //验证最后修改时间
         let lastModified = stat.mtime.toUTCString();
-        
-        if (lastModified === ctx.request.headers['if-modified-since']) {
-            ctx.status = 304;
-            return ctx.body = "Not Modified";
+
+        //验证Etag是否匹配
+        const match = ctx.request.headers["if-none-match"];
+        const eTag = await getETag(realPath);
+        if (match == eTag) {
+            //验证最后修改时间
+            
+            if (lastModified === ctx.request.headers['if-modified-since']) {
+                ctx.status = 304;
+                return ctx.body = "Not Modified";
+            }
         }
+        
 
          /** 
           * 设置响应头
@@ -112,7 +119,8 @@ function staticServe (root = "", options = {}) {
             ctx.set("Cache-Control", `max-age=${opts.maxAge || opts.maxage}` )
         }
 
-        ctx.set("Last-Modified", lastModified)
+        ctx.set("Last-Modified", lastModified);
+        ctx.set("ETag", await getETag(realPath))
         let rs = await compressFile(ctx, realPath, opts.compress)
         return ctx.body = rs;
     
@@ -141,6 +149,12 @@ async function compressFile(ctx, realPath, compress){
         return rs.pope(zlib.createDeflate())
     }
     return rs;
+}
+
+async function getETag(realPath) {
+    const content = await fs.readTextFile(realPath);
+    const eTag = crypto.createHash("md5").update(content).digest("hex")
+    return eTag;
 }
 
 
